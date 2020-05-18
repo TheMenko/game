@@ -126,4 +126,7 @@
         "id" "string"     // Person speccing
         "target" "string" // Spec target
     }
+    "player_jumped"
+    {
+    }
 }
