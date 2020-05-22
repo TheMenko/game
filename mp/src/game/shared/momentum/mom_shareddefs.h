@@ -85,6 +85,17 @@ const char * const g_szGameModes[] = {
     "#MOM_GameType_Ahop"
 };
 
+// gamemode string identifiers for when loading from file
+const char * const g_szGameModeIdentifiers[] = {
+    "#MOM_GameTypeID_Surf",
+    "#MOM_GameTypeID_Bhop",
+    "#MOM_GameTypeID_KZ",
+    "#MOM_GameTypeID_RJ",
+    "#MOM_GameTypeID_SJ",
+    "#MOM_GameTypeID_Tricksurf",
+    "#MOM_GameTypeID_Ahop"
+};
+
 // Run Flags
 enum RunFlag_t
 {

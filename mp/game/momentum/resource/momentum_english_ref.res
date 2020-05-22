@@ -178,6 +178,7 @@
         "MOM_MapSelector_StagedOnly" "Staged Maps only"
 
         // Gametypes
+        "MOM_GameType_Current" "Current Gamemode"
         "MOM_GameType" "Game Type"
         "MOM_GameType_Surf" "Surf"
         "MOM_GameType_Bhop" "Bhop"
@@ -186,6 +187,15 @@
         "MOM_GameType_SJ" "Sticky Jump"
         "MOM_GameType_Tricksurf" "Tricksurf"
         "MOM_GameType_Ahop" "Ahop"
+
+        // Gametype identifiers (for loading from file)
+        "MOM_GameTypeID_Surf" "surf"
+        "MOM_GameTypeID_Bhop" "bhop"
+        "MOM_GameTypeID_KZ" "climb"
+        "MOM_GameTypeID_RJ" "rj"
+        "MOM_GameTypeID_SJ" "sj"
+        "MOM_GameTypeID_Tricksurf" "tricksurf"
+        "MOM_GameTypeID_Ahop" "ahop"
 
         // Map Info Dialog
         "MOM_MapSelector_InfoDialog_Gamemode" "Gamemode:"
