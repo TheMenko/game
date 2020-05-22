@@ -367,6 +367,9 @@ private:
 	bool			   _wrap;
 	bool			   _sendNewLines;
 	int				   _drawWidth;
+	bool				_autoTall;
+	int					_drawOffsetX;
+	int					_drawOffsetY;
 
 	// selection data
 	Menu				*m_pEditMenu; ///cut/copy/paste popup

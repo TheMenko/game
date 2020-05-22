@@ -39,7 +39,7 @@
 using namespace vgui;
 
 static const int DEFAULT_SNAP_RANGE = 10; // number of pixels distance before the frame will snap to an edge
-static const int CAPTION_TITLE_BORDER = 7;
+static const int CAPTION_TITLE_BORDER = 4;
 static const int CAPTION_TITLE_BORDER_SMALL = 0;
 
 namespace
@@ -1367,7 +1367,7 @@ void Frame::GetClientArea(int &x, int &y, int &wide, int &tall)
 	{
 		int captionTall = surface()->GetFontTall(_title->GetFont());
 
-		int border = m_bSmallCaption ? CAPTION_TITLE_BORDER_SMALL : CAPTION_TITLE_BORDER;
+		int border = m_bSmallCaption ? CAPTION_TITLE_BORDER_SMALL : GetScaledVal(CAPTION_TITLE_BORDER);
 		int yinset = m_bSmallCaption ? 0 : m_iClientInsetY;
 
 		yinset += m_iTitleTextInsetYOverride;

@@ -5,7 +5,7 @@
         "ControlName"		"EditablePanel"
         "fieldName"		"ConsolePage"
         "xpos"		"0"
-        "ypos"		"-10"
+        "ypos"		"-12"
         "proportionalToParent" "1"
         "wide" "f0"
         "tall" "f0"
