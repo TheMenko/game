@@ -3,6 +3,8 @@
 #include "hud_speedometer_label.h"
 
 #include <vgui_controls/AnimationController.h>
+
+#include "hud_comparisons.h"
 #include "iclientmode.h"
 #include "momentum/util/mom_util.h"
 
@@ -24,7 +26,24 @@ SpeedometerLabel::SpeedometerLabel(Panel *parent, const char *panelName, Speedom
       m_pSzAnimationName(animationName), m_bSupportsEnergyUnits(supportsEnergyUnits), m_bDoneFading(false),
       m_eUnitType(SPEEDOMETER_UNITS_UPS), m_pRangeList(nullptr), m_bDrawComparison(true), m_cvarGravity("sv_gravity")
 {
+    CreateComparisonLabel();
     Reset();
+}
+
+// creates a separate label for the comparison & pins it to this
+void SpeedometerLabel::CreateComparisonLabel()
+{
+    char name[BUFSIZELOCL];
+    Q_snprintf(name, sizeof(name), "%sComparison", GetName());
+    m_pComparisonLabel = new Label(GetParent(), name, "");
+    m_pComparisonLabel->SetName(name);
+    m_pComparisonLabel->SetPos(0, 0);
+    m_pComparisonLabel->PinToSibling(GetName(), PIN_TOPLEFT, PIN_TOPRIGHT);
+    m_pComparisonLabel->SetFont(GetFont());
+    m_pComparisonLabel->SetAutoTall(true);
+    m_pComparisonLabel->SetAutoWide(true);
+    m_pComparisonLabel->SetContentAlignment(a_center);
+    m_pComparisonLabel->SetPinCorner(PIN_TOPLEFT, 0, 0);
 }
 
 void SpeedometerLabel::ApplySchemeSettings(IScheme *pScheme)
@@ -33,6 +52,29 @@ void SpeedometerLabel::ApplySchemeSettings(IScheme *pScheme)
     m_NormalColor = GetSchemeColor("MOM.Speedometer.Normal", pScheme);
     m_IncreaseColor = GetSchemeColor("MOM.Speedometer.Increase", pScheme);
     m_DecreaseColor = GetSchemeColor("MOM.Speedometer.Decrease", pScheme);
+    m_pComparisonLabel->SetFont(GetFont());
+}
+
+void SpeedometerLabel::PerformLayout()
+{
+    BaseClass::PerformLayout();
+
+    // keep centered in parent
+    char szMain[BUFSIZELOCL];
+    GetText(szMain, BUFSIZELOCL);
+
+    HFont labelFont = GetFont();
+    int combinedLength = UTIL_ComputeStringWidth(labelFont, szMain);
+
+    if (m_eColorizeType == SPEEDOMETER_COLORIZE_COMPARISON_SEPARATE && m_bDrawComparison)
+    {
+        char szComparison[BUFSIZELOCL];
+        m_pComparisonLabel->GetText(szComparison, BUFSIZELOCL);
+        combinedLength += UTIL_ComputeStringWidth(labelFont, szComparison);
+    }
+
+    int xOffset = (GetParent()->GetWide() - combinedLength) / 2;
+    SetPos(xOffset, GetYPos());
 }
 
 void SpeedometerLabel::OnThink()
@@ -55,7 +97,12 @@ void SpeedometerLabel::Reset()
     m_flCurrentValue = 0.0f;
     m_flPastValue = 0.0f;
     m_flDiff = 0.0f;
+
+    m_bCustomDiff = false;
+    m_bDrawComparison = true;
     m_bDoneFading = true;
+
+    m_pComparisonLabel->SetText("");
     BaseClass::SetText("");
 
     SetAlpha(HasFadeOutAnimation() ? 0 : 255);
@@ -156,6 +203,29 @@ void SpeedometerLabel::Colorize()
         }
         SetFgColor(MomUtil::GetColorFromVariation(m_flDiff, COLORIZE_DEADZONE, m_NormalColor, m_IncreaseColor,
                                                   m_DecreaseColor));
+    }
+    break;
+    case SPEEDOMETER_COLORIZE_COMPARISON_SEPARATE:
+    {
+        SetFgColor(m_NormalColor);
+        if (m_bDrawComparison)
+        {
+            if (!m_bCustomDiff) // calculate diff unless explicity told not to
+            {
+                m_flDiff = fabs(m_flCurrentValue) - fabs(m_flPastValue);
+            }
+            m_bCustomDiff = false;
+
+            Color compareColor;
+            g_pMOMRunCompare->GetDiffColor(m_flDiff, &compareColor, true);
+
+            char diffChar = m_flDiff > 0.0f ? '+' : '-';
+            char szText[BUFSIZELOCL];
+            Q_snprintf(szText, BUFSIZELOCL, " (%c %i)", diffChar, RoundFloatToInt(fabs(m_flDiff)));
+
+            m_pComparisonLabel->SetText(szText);
+            m_pComparisonLabel->SetFgColor(compareColor);
+        }
     }
     break;
     default:
