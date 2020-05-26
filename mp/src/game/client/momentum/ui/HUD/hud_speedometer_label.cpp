@@ -17,7 +17,8 @@ using namespace vgui;
 SpeedometerLabel::SpeedometerLabel(Panel *parent, const char *panelName, bool supportsEnergyUnits,
                                    char *animationName, float *animationAlpha)
     : Label(parent, panelName, ""), m_bSupportsEnergyUnits(supportsEnergyUnits), m_cvarGravity("sv_gravity"),
-      m_eUnitType(SPEEDOMETER_UNITS_UPS), m_pFlAlpha(animationAlpha), m_pSzAnimationName(animationName)
+      m_eUnitType(SPEEDOMETER_UNITS_UPS), m_pFlAlpha(animationAlpha), m_pSzAnimationName(animationName),
+      m_bDoneFading(false)
 {
     Reset();
 }
@@ -25,16 +26,25 @@ SpeedometerLabel::SpeedometerLabel(Panel *parent, const char *panelName, bool su
 
 void SpeedometerLabel::OnThink()
 {
-    if (HasFadeOutAnimation())
+    if (HasFadeOutAnimation() && !m_bDoneFading)
     {
         SetAlpha(*m_pFlAlpha);
+        m_pComparisonLabel->SetAlpha(*m_pFlAlpha);
+
+        if (CloseEnough(*m_pFlAlpha, 0.0f, FLT_EPSILON))
+        {
+            m_bDoneFading = true;
+            Reset();
+        }
     }
 }
+
 void SpeedometerLabel::Reset()
 {
     m_flCurrentValue = 0.0f;
     m_flPastValue = 0.0f;
     m_flDiff = 0.0f;
+    m_bDoneFading = true;
     BaseClass::SetText("");
 
     SetAlpha(HasFadeOutAnimation() ? 0 : 255);
@@ -53,8 +63,7 @@ void SpeedometerLabel::Update(float value)
 
     ConvertUnits();
     SetText(m_flCurrentValue);
-    if (HasFadeOutAnimation())
-        StartFadeout();
+    m_bDoneFading = HasFadeOutAnimation() ? !StartFadeout() : false;
 
     m_flPastValue = m_flCurrentValue;
 }
