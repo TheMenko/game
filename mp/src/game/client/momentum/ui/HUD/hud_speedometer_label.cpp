@@ -97,6 +97,7 @@ void SpeedometerLabel::Reset()
     m_flCurrentValue = 0.0f;
     m_flPastValue = 0.0f;
     m_flDiff = 0.0f;
+    m_flNextUpdateCheck = 0.0f;
 
     m_bCustomDiff = false;
     m_bDrawComparison = true;
@@ -117,6 +118,9 @@ void SpeedometerLabel::SetText(int value)
 
 void SpeedometerLabel::Update(float value)
 {
+    if (m_flNextUpdateCheck > gpGlobals->curtime)
+        return;
+
     m_flCurrentValue = value;
 
     ConvertUnits();
@@ -125,6 +129,8 @@ void SpeedometerLabel::Update(float value)
     m_bDoneFading = HasFadeOutAnimation() ? !StartFadeout() : false;
 
     m_flPastValue = m_flCurrentValue;
+
+    m_flNextUpdateCheck = gpGlobals->curtime + MOM_SPEEDOMETER_UPDATE_FREQUENCY;
 }
 
 void SpeedometerLabel::ConvertUnits()

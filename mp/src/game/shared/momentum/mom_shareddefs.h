@@ -223,6 +223,7 @@ enum SpectateMessageType_t
 #define PANEL_LOBBY_MEMBERS "LobbyMembers"
 
 #define MOM_COLORIZATION_CHECK_FREQUENCY 0.1f
+#define MOM_SPEEDOMETER_UPDATE_FREQUENCY 0.0166667f // roughly 60fps
 
 #define END_RECORDING_DELAY 1.0f //Delay the ending by this amount of seconds
 #define START_TRIGGER_TIME_SEC 2.0f //We only want this amount in seconds of being in the start trigger
