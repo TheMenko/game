@@ -58,6 +58,7 @@ enum SpeedometerUnits_t
 enum SpeedometerColorize_t
 {
     SPEEDOMETER_COLORIZE_NONE,
+    SPEEDOMETER_COLORIZE_RANGE,
     SPEEDOMETER_COLORIZE_COMPARISON
 };
 

@@ -125,6 +125,25 @@ void SpeedometerLabel::Colorize()
     {
         SetFgColor(m_NormalColor);
     } break;
+    case SPEEDOMETER_COLORIZE_RANGE:
+    {
+        int roundedCurrentValue = RoundFloatToInt(m_flCurrentValue);
+        Color newColor = m_NormalColor;
+        if (m_pRangeList)
+        {
+            for (auto i = 0; i < m_pRangeList->Count(); i++)
+            {
+                Range_t range = (*m_pRangeList)[i];
+                if (roundedCurrentValue >= range.min && roundedCurrentValue <= range.max)
+                {
+                    newColor = range.color;
+                    break;
+                }
+            }
+        }
+        SetFgColor(newColor);
+    }
+    break;
     case SPEEDOMETER_COLORIZE_COMPARISON:
     {
         if (m_eUnitType == SPEEDOMETER_UNITS_ENERGY && m_bSupportsEnergyUnits)
