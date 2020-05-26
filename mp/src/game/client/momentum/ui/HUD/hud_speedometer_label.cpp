@@ -4,6 +4,7 @@
 
 #include <vgui_controls/AnimationController.h>
 #include "iclientmode.h"
+#include "momentum/util/mom_util.h"
 
 #include "tier0/memdbgon.h"
 
@@ -12,17 +13,27 @@
 // 1 unit = 0.75", 1 mile = 63360. 0.75 / 63360 ~~> 0.00001184"(/s) ~~> 0.04262MPH
 #define UPS_TO_MPH_FACTOR 0.04262f
 
+// velocity has to change this much before it is colored as increase/decrease
+#define COLORIZE_DEADZONE 0.15f
+
 using namespace vgui;
 
-SpeedometerLabel::SpeedometerLabel(Panel *parent, const char *panelName, bool supportsEnergyUnits,
-                                   char *animationName, float *animationAlpha)
-    : Label(parent, panelName, ""), m_bSupportsEnergyUnits(supportsEnergyUnits), m_cvarGravity("sv_gravity"),
-      m_eUnitType(SPEEDOMETER_UNITS_UPS), m_pFlAlpha(animationAlpha), m_pSzAnimationName(animationName),
-      m_bDoneFading(false)
+SpeedometerLabel::SpeedometerLabel(Panel *parent, const char *panelName, SpeedometerColorize_t colorizeType,
+                                   bool supportsEnergyUnits, char *animationName, float *animationAlpha)
+    : Label(parent, panelName, ""), m_eColorizeType(colorizeType), m_pFlAlpha(animationAlpha),
+      m_pSzAnimationName(animationName), m_bSupportsEnergyUnits(supportsEnergyUnits), m_bDoneFading(false),
+      m_eUnitType(SPEEDOMETER_UNITS_UPS), m_pRangeList(nullptr), m_bDrawComparison(true), m_cvarGravity("sv_gravity")
 {
     Reset();
 }
 
+void SpeedometerLabel::ApplySchemeSettings(IScheme *pScheme)
+{
+    BaseClass::ApplySchemeSettings(pScheme);
+    m_NormalColor = GetSchemeColor("MOM.Speedometer.Normal", pScheme);
+    m_IncreaseColor = GetSchemeColor("MOM.Speedometer.Increase", pScheme);
+    m_DecreaseColor = GetSchemeColor("MOM.Speedometer.Decrease", pScheme);
+}
 
 void SpeedometerLabel::OnThink()
 {
@@ -63,6 +74,7 @@ void SpeedometerLabel::Update(float value)
 
     ConvertUnits();
     SetText(m_flCurrentValue);
+    Colorize();
     m_bDoneFading = HasFadeOutAnimation() ? !StartFadeout() : false;
 
     m_flPastValue = m_flCurrentValue;
@@ -100,6 +112,33 @@ void SpeedometerLabel::ConvertUnits()
         }
         break;
     case SPEEDOMETER_UNITS_UPS:
+    default:
+        break;
+    }
+}
+
+void SpeedometerLabel::Colorize()
+{
+    switch (m_eColorizeType)
+    {
+    case SPEEDOMETER_COLORIZE_NONE:
+    {
+        SetFgColor(m_NormalColor);
+    } break;
+    case SPEEDOMETER_COLORIZE_COMPARISON:
+    {
+        if (m_eUnitType == SPEEDOMETER_UNITS_ENERGY && m_bSupportsEnergyUnits)
+        {
+            m_flDiff = m_flCurrentValue - m_flPastValue;
+        }
+        else
+        {
+            m_flDiff = fabs(m_flCurrentValue) - fabs(m_flPastValue);
+        }
+        SetFgColor(MomUtil::GetColorFromVariation(m_flDiff, COLORIZE_DEADZONE, m_NormalColor, m_IncreaseColor,
+                                                  m_DecreaseColor));
+    }
+    break;
     default:
         break;
     }

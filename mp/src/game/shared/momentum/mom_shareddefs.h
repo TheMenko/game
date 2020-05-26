@@ -55,6 +55,12 @@ enum SpeedometerUnits_t
     SPEEDOMETER_UNITS_ENERGY
 };
 
+enum SpeedometerColorize_t
+{
+    SPEEDOMETER_COLORIZE_NONE,
+    SPEEDOMETER_COLORIZE_COMPARISON
+};
+
 static const char *const g_szSubmitStates[] = {
     "#MOM_MF_RunSubmitFail_Unknown",          // RUN_SUBMIT_UNKNOWN
     "#MOM_MF_RunSubmitted",                   // RUN_SUBMIT_SUCCESS
